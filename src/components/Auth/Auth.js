@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import jwtDecode from 'jwt-decode';
 import { useDispatch } from 'react-redux';
-import { Avatar, Paper, Grid, Typography, Container, Button } from '@material-ui/core';
+import { Avatar, Paper, Grid, Typography, Container, Button, LinearProgress } from '@material-ui/core';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import { signIn, signUp } from '../../state/actions/auth';
 
@@ -16,6 +16,7 @@ const Auth = () => {
     const [isSignUp, setIsSignUp] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [formData, setFormData] = useState(initialState);
+    const [isLoading, setIsLoading] = useState(false);
 
     const dispatch = useDispatch();
     const navigate = useNavigate()
@@ -33,11 +34,13 @@ const Auth = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        setIsLoading(true);
         if(isSignUp){
-            dispatch(signUp(formData, navigate));
+            dispatch(signUp(formData, navigate, setIsLoading));
         } else {
-            dispatch(signIn(formData, navigate));
+            dispatch(signIn(formData, navigate, setIsLoading));
         }
+        
         console.log(formData);
     };
     const handleChange = (e) => {
@@ -84,7 +87,12 @@ const Auth = () => {
                         <Input name="password" label="Password" handleChange={handleChange} type={showPassword ? "text" : "password"} handleShowPassword={handleShowPassword} />
                         {isSignUp && <Input name="confirmPassword" label="Repeat Password" handleChange={handleChange} type="password" />}
                     </Grid>
-                    <Button type="submit" fullWidth variant="contained" color="primary" className={classes.submit}>{isSignUp ? "Sign Up" : "Sign In"}</Button>
+                    <Button type="submit" fullWidth variant="contained" color="primary" disabled={isLoading} className={classes.submit}>{isLoading ? "Signing In..." : isSignUp ? "Sign Up" : "Sign In"}</Button>
+                    {isLoading && 
+                    <div style={{marginBottom: 15}}>
+                        <LinearProgress/>
+                    </div>
+                    }
                     <Grid container justifyContent='center' id="googleSignIn" />
                     <Grid container justifyContent="flex-end">
                         <Grid item>
